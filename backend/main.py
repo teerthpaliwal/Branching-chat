@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from database import SessionLocal, engine
 from models import Base, Message
@@ -51,3 +51,35 @@ def get_messages():
     messages = db.query(Message).all()
 
     return messages
+
+@app.get("/messages/{message_id}")
+def get_message(message_id: int):
+
+    db = SessionLocal()
+
+    message = (
+        db.query(Message)
+        .filter(Message.id == message_id)
+        .first()
+    )
+
+    if message is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Message not found"
+        )
+
+    return message
+
+@app.get("/messages/{message_id}/children")
+def get_children(message_id: int):
+
+    db = SessionLocal()
+
+    children = (
+        db.query(Message)
+        .filter(Message.parent_id == message_id)
+        .all()
+    )
+
+    return children
