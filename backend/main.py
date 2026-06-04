@@ -27,20 +27,24 @@ def create_message(message: MessageCreate):
 
     db = SessionLocal()
 
-    db_message = Message(
-        parent_id=message.parent_id,
-        role=message.role,
-        content=message.content
-    )
+    try:
+        db_message = Message(
+            parent_id=message.parent_id,
+            role=message.role,
+            content=message.content
+        )
 
-    db.add(db_message)
-    db.commit()
-    db.refresh(db_message)
+        db.add(db_message)
+        db.commit()
+        db.refresh(db_message)
 
-    return {
-        "id": db_message.id,
-        "content": db_message.content
-    }
+        return {
+            "id": db_message.id,
+            "content": db_message.content
+        }
+
+    finally:
+        db.close()
 
 
 @app.get("/messages")
@@ -48,38 +52,93 @@ def get_messages():
 
     db = SessionLocal()
 
-    messages = db.query(Message).all()
+    try:
+        messages = db.query(Message).all()
 
-    return messages
+        return messages
+    finally:
+        db.close()
 
 @app.get("/messages/{message_id}")
 def get_message(message_id: int):
 
     db = SessionLocal()
 
-    message = (
-        db.query(Message)
-        .filter(Message.id == message_id)
-        .first()
-    )
-
-    if message is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Message not found"
+    try:
+        message = (
+            db.query(Message)
+            .filter(Message.id == message_id)
+            .first()
         )
 
-    return message
+        if message is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Message not found"
+            )
+
+        return message
+
+    finally:
+        db.close()
 
 @app.get("/messages/{message_id}/children")
 def get_children(message_id: int):
 
     db = SessionLocal()
 
-    children = (
-        db.query(Message)
-        .filter(Message.parent_id == message_id)
-        .all()
-    )
+    try:
+        children = (
+            db.query(Message)
+            .filter(Message.parent_id == message_id)
+            .all()
+        )
+        return children
+    
+    finally:
+        db.close()
 
-    return children
+
+@app.get("/messages/{message_id}/path")
+def get_path(message_id: int):
+
+    db = SessionLocal()
+
+    path = []
+
+    try:
+
+        current_message = (
+            db.query(Message)
+            .filter(Message.id == message_id)
+            .first()
+        )
+
+        if current_message is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Message not found"
+            )
+
+        while current_message is not None:
+
+            path.append(current_message)
+
+            if current_message.parent_id is None:
+                break
+
+            current_message = (
+                db.query(Message)
+                .filter(
+                    Message.id ==
+                    current_message.parent_id
+                )
+                .first()
+            )
+
+        path.reverse()
+
+        return path
+    
+    finally:
+        db.close()

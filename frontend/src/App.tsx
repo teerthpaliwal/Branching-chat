@@ -16,6 +16,9 @@ function App() {
 const [children, setChildren] =
   useState<Message[]>([]);
 
+  const [newMessage, setNewMessage] =
+  useState("");
+
   useEffect(() => {
     fetchMessages();
   }, []);
@@ -50,6 +53,35 @@ const [children, setChildren] =
   setChildren(childrenData);
 };
 
+const createChildMessage = async () => {
+
+  if (!selectedMessage) return;
+
+  await fetch(
+    "http://localhost:8000/messages",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+      body: JSON.stringify({
+        parent_id: selectedMessage.id,
+        role: "user",
+        content: newMessage,
+      }),
+    }
+  );
+
+  setNewMessage("");
+
+  await selectMessage(
+    selectedMessage.id
+  );
+
+  await fetchMessages();
+};
+
   return (
     <div>
       <h1>Branching Chat</h1>
@@ -79,6 +111,22 @@ const [children, setChildren] =
     </p>
 
     <h3>Children</h3>
+
+    <div>
+  <input
+    value={newMessage}
+    onChange={(e) =>
+      setNewMessage(e.target.value)
+    }
+    placeholder="Create branch..."
+  />
+
+  <button
+    onClick={createChildMessage}
+  >
+    Add Child
+  </button>
+</div>
 
     {children.map((child) => (
       <button
