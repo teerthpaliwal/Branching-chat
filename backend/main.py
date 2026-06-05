@@ -4,6 +4,13 @@ from database import SessionLocal, engine
 from models import Base, Message
 from schemas import MessageCreate
 
+def fake_ai_response(user_message: str):
+
+    return (
+        "Fake AI says: "
+        + user_message
+    )
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -28,19 +35,32 @@ def create_message(message: MessageCreate):
     db = SessionLocal()
 
     try:
-        db_message = Message(
+
+        user_message = Message(
             parent_id=message.parent_id,
             role=message.role,
             content=message.content
         )
 
-        db.add(db_message)
+        db.add(user_message)
         db.commit()
-        db.refresh(db_message)
+        db.refresh(user_message)
+
+        ai_message = Message(
+            parent_id=user_message.id,
+            role="assistant",
+            content=fake_ai_response(
+                user_message.content
+            )
+        )
+
+        db.add(ai_message)
+        db.commit()
+        db.refresh(ai_message)
 
         return {
-            "id": db_message.id,
-            "content": db_message.content
+            "user_id": user_message.id,
+            "assistant_id": ai_message.id
         }
 
     finally:
