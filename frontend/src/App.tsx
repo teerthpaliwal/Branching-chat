@@ -13,15 +13,42 @@ function App() {
   const [selectedMessage, setSelectedMessage] =
   useState<Message | null>(null);
 
+  const [conversationChildren, setConversationChildren] =
+  useState<Record<number, Message[]>>({});
+
 const [children, setChildren] =
   useState<Message[]>([]);
 
   const [newMessage, setNewMessage] =
   useState("");
 
+  const [path, setPath] =
+  useState<Message[]>([]);
+
   useEffect(() => {
     fetchMessages();
   }, []);
+
+  const loadConversationChildren =
+  async (conversationPath: Message[]) => {
+
+    const childrenMap:
+      Record<number, Message[]> = {};
+
+    for (const message of conversationPath) {
+
+      const response = await fetch(
+        `http://localhost:8000/messages/${message.id}/children`
+      );
+
+      const children =
+        await response.json();
+
+      childrenMap[message.id] = children;
+    }
+
+    setConversationChildren(childrenMap);
+};
 
   const fetchMessages = async () => {
     const response = await fetch(
@@ -51,11 +78,24 @@ const [children, setChildren] =
     await childrenResponse.json();
 
   setChildren(childrenData);
+
+  const pathResponse = await fetch(
+  `http://localhost:8000/messages/${id}/path`
+);
+
+const pathData =
+  await pathResponse.json();
+
+setPath(pathData);
+
+await loadConversationChildren(pathData);
 };
 
 const createChildMessage = async () => {
 
   if (!selectedMessage) return;
+
+  if (!newMessage.trim()) return;
 
   await fetch(
     "http://localhost:8000/messages",
@@ -87,6 +127,59 @@ const createChildMessage = async () => {
       <h1>Branching Chat</h1>
 
       <h2>Stored Messages</h2>
+
+      {path.length > 0 && (
+  <div
+    style={{
+      border: "2px solid green",
+      padding: "10px",
+      marginBottom: "20px",
+    }}
+  >
+    <h2>Current Conversation</h2>
+
+    {path.map((message) => (
+      <div
+        key={message.id}
+        style={{
+          marginBottom: "20px",
+        }}
+      >
+        <p>
+          <strong>[{message.id}]</strong>
+        </p>
+
+        <p>{message.content}</p>
+
+        {conversationChildren[message.id]?.length > 0 && (
+          <div
+            style={{
+              marginLeft: "20px",
+            }}
+          >
+            <strong>Branches:</strong>
+
+            {conversationChildren[message.id].map(
+              (child) => (
+                <button
+                  key={child.id}
+                  onClick={() =>
+                    selectMessage(child.id)
+                  }
+                  style={{
+                    marginLeft: "5px",
+                  }}
+                >
+                  {child.id}
+                </button>
+              )
+            )}
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+)}
 
       {selectedMessage && (
   <div
