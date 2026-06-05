@@ -4,12 +4,83 @@ from database import SessionLocal, engine
 from models import Base, Message
 from schemas import MessageCreate
 
+import os
+
+from dotenv import load_dotenv
+from openai import OpenAI
+
+load_dotenv()
+
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY")
+)
+
 def fake_ai_response(user_message: str):
 
     return (
         "Fake AI says: "
         + user_message
     )
+
+def generate_ai_response(
+    conversation_path
+):
+
+    messages = []
+
+    for message in conversation_path:
+
+        messages.append({
+            "role": message.role,
+            "content": message.content
+        })
+
+    response = (
+        client.chat.completions.create(
+            model="gpt-4.1-mini",
+            messages=messages
+        )
+    )
+
+    return (
+        response
+        .choices[0]
+        .message
+        .content
+    )
+
+def build_conversation_path(
+    db,
+    message_id: int
+):
+
+    path = []
+
+    current = (
+        db.query(Message)
+        .filter(Message.id == message_id)
+        .first()
+    )
+
+    while current is not None:
+
+        path.append(current)
+
+        if current.parent_id is None:
+            break
+
+        current = (
+            db.query(Message)
+            .filter(
+                Message.id ==
+                current.parent_id
+            )
+            .first()
+        )
+
+    path.reverse()
+
+    return path
 
 Base.metadata.create_all(bind=engine)
 
@@ -29,6 +100,24 @@ app.add_middleware(
 def root():
     return {"message": "Backend is running"}
 
+@app.get("/test-ai")
+def test_ai():
+
+    response = client.chat.completions.create(
+        model="gpt-4.1-mini",
+        messages=[
+            {
+                "role": "user",
+                "content": "Say hello in one sentence."
+            }
+        ]
+    )
+
+    return {
+        "response":
+        response.choices[0].message.content
+    }
+
 @app.post("/messages")
 def create_message(message: MessageCreate):
 
@@ -46,12 +135,30 @@ def create_message(message: MessageCreate):
         db.commit()
         db.refresh(user_message)
 
+        
+
+        conversation_path = (
+            build_conversation_path(
+                db,
+                user_message.id
+            )
+        )
+
+        print("PATH SENT TO GPT:")
+
+        for msg in conversation_path:
+            print(msg.role, ":", msg.content)
+
+        ai_text = (
+            generate_ai_response(
+                conversation_path
+            )
+        )
+
         ai_message = Message(
             parent_id=user_message.id,
             role="assistant",
-            content=fake_ai_response(
-                user_message.content
-            )
+            content=ai_text
         )
 
         db.add(ai_message)
