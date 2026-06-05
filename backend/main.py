@@ -30,8 +30,17 @@ def generate_ai_response(
 
     for message in conversation_path:
 
-        messages.append({
-            "role": message.role,
+        role = message.role.lower()
+
+    if role not in [
+        "user",
+        "assistant",
+        "system"
+    ]:
+        role = "user"
+
+    messages.append({
+            "role": role,
             "content": message.content
         })
 
