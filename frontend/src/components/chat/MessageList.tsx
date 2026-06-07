@@ -1,13 +1,13 @@
-// MessageList.tsx
-
 import MessageBubble from "./MessageBubble.tsx";
 
 interface Props {
   messages: any[];
+  onCreateBranch: (id: number) => void;
 }
 
 export default function MessageList({
   messages,
+  onCreateBranch,
 }: Props) {
   return (
     <div className="flex-1 overflow-y-auto">
@@ -16,10 +16,10 @@ export default function MessageList({
           <MessageBubble
             key={message.id}
             message={message}
+            onCreateBranch={onCreateBranch}
           />
         ))}
       </div>
     </div>
   );
 }
-
