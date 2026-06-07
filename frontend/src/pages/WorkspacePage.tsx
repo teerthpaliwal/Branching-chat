@@ -1,19 +1,55 @@
-// WorkspacePage.tsx
+import { useEffect, useState } from "react";
 
-import ChatLayout from "../components/chat/ChatLayout.tsx";
+import ChatLayout from "../components/chat/ChatLayout";
+
+import { getLatestPath } from "../services/api";
+import { sendMessage } from "../services/api";
+
+import { type Message } from "../types/chat";
 
 export default function WorkspacePage() {
-  const messages: any[] = [];
 
-  const handleSend = async (
-    text: string
-  ) => {
-    console.log(text);
-  };
+  const [path, setPath] =
+    useState<Message[]>([]);
+
+  useEffect(() => {
+    loadConversation();
+  }, []);
+
+  const loadConversation =
+    async () => {
+
+      const data =
+        await getLatestPath();
+
+      setPath(data);
+    };
+
+  const handleSend =
+    async (text: string) => {
+
+      let parentId = null;
+
+      if (path.length > 0) {
+
+        parentId =
+          path[path.length - 1].id;
+      }
+
+      await sendMessage(
+        parentId,
+        text
+      );
+
+      const updated =
+        await getLatestPath();
+
+      setPath(updated);
+    };
 
   return (
     <ChatLayout
-      messages={messages}
+      messages={path}
       onSend={handleSend}
     />
   );

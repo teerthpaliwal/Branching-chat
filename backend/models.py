@@ -1,6 +1,20 @@
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.orm import declarative_base
 
+from sqlalchemy import (
+    Column,
+    Integer,
+    String,
+    Text,
+    ForeignKey
+)
+
+parent_id = Column(
+    Integer,
+    ForeignKey("messages.id"),
+    nullable=True
+)
+
 Base = declarative_base()
 
 class Message(Base):

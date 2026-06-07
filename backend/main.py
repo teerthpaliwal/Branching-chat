@@ -32,17 +32,17 @@ def generate_ai_response(
 
         role = message.role.lower()
 
-    if role not in [
-        "user",
-        "assistant",
-        "system"
-    ]:
-        role = "user"
+        if role not in [
+            "user",
+            "assistant",
+            "system"
+        ]:
+            role = "user"
 
-    messages.append({
-            "role": role,
-            "content": message.content
-        })
+        messages.append({
+                "role": role,
+                "content": message.content
+            })
 
     response = (
         client.chat.completions.create(
@@ -108,6 +108,30 @@ app.add_middleware(
 @app.get("/")
 def root():
     return {"message": "Backend is running"}
+
+@app.get("/latest-path")
+def latest_path():
+
+    db = SessionLocal()
+
+    try:
+
+        latest = (
+            db.query(Message)
+            .order_by(Message.id.desc())
+            .first()
+        )
+
+        if latest is None:
+            return []
+
+        return build_conversation_path(
+            db,
+            latest.id
+        )
+
+    finally:
+        db.close()
 
 @app.get("/test-ai")
 def test_ai():
