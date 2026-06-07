@@ -1,16 +1,26 @@
 import MessageBubble from "./MessageBubble.tsx";
 import { useEffect, useRef } from "react";
+import type { Message }
+from "../../types/chat";
 
 interface Props {
   messages: any[];
   onCreateBranch: (id: number) => void;
   isLoading: boolean;
+
+  conversationChildren:
+    Record<number, Message[]>;
+
+  onSwitchBranch:
+    (messageId: number) => void;
 }
 
 export default function MessageList({
   messages,
   onCreateBranch,
   isLoading,
+  conversationChildren,
+  onSwitchBranch,
 }: Props) {
 
   const bottomRef =
@@ -30,10 +40,18 @@ export default function MessageList({
 
         {messages.map((message) => (
           <MessageBubble
-            key={message.id}
-            message={message}
-            onCreateBranch={onCreateBranch}
-          />
+  key={message.id}
+  message={message}
+  onCreateBranch={onCreateBranch}
+  children={
+    conversationChildren[
+      message.id
+    ] || []
+  }
+  onSwitchBranch={
+    onSwitchBranch
+  }
+/>
         ))}
 
         <div ref={bottomRef} />

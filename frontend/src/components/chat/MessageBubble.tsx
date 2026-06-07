@@ -1,14 +1,22 @@
+import type { Message } from "../../types/chat";
 import BranchIndicator from "./BranchIndicator";
 import ReactMarkdown from "react-markdown";
 
 interface Props {
   message: any;
   onCreateBranch: (id: number) => void;
+
+  children: Message[];
+
+  onSwitchBranch:
+    (messageId: number) => void;
 }
 
 export default function MessageBubble({
   message,
   onCreateBranch,
+  onSwitchBranch,
+  children,
 }: Props) {
 
   const isUser =
@@ -53,7 +61,40 @@ export default function MessageBubble({
           {message.content}
         </ReactMarkdown>
 
-        {message.children_count > 1 && (
+        {children.length >= 1 && (
+
+  <div className="mt-3">
+
+    {children.map(
+      (child) => (
+
+        <button
+          key={child.id}
+          onClick={() =>
+            onSwitchBranch(
+              child.id
+            )
+          }
+          className="
+            mr-2
+            text-xs
+            bg-zinc-700
+            px-2
+            py-1
+            rounded
+          "
+        >
+          Branch {child.id}
+        </button>
+
+      )
+    )}
+
+  </div>
+
+)}
+
+        {message.children_count > 0 && (
           <BranchIndicator />
         )}
       </div>
