@@ -1,5 +1,3 @@
-// ChatInput.tsx
-
 import { useState } from "react";
 
 interface Props {
@@ -9,18 +7,37 @@ interface Props {
 export default function ChatInput({
   onSend,
 }: Props) {
-  const [text, setText] = useState("");
+
+  const [text, setText] =
+    useState("");
 
   const handleSubmit = () => {
+
     if (!text.trim()) return;
 
     onSend(text);
+
     setText("");
   };
 
   return (
-    <div className="border-t border-zinc-800 p-4">
-      <div className="max-w-4xl mx-auto flex gap-2">
+    <div
+      className="
+        border-t
+        border-zinc-800
+        p-4
+        bg-zinc-950
+      "
+    >
+      <div
+        className="
+          max-w-4xl
+          mx-auto
+          flex
+          items-end
+          gap-3
+        "
+      >
         <textarea
           value={text}
           onChange={(e) =>
@@ -30,26 +47,31 @@ export default function ChatInput({
           placeholder="Message..."
           className="
             flex-1
-            rounded-xl
+            rounded-3xl
             bg-zinc-900
             text-white
-            px-4
-            py-3
+            px-5
+            py-4
             resize-none
             outline-none
+            border
+            border-zinc-700
           "
         />
 
         <button
           onClick={handleSubmit}
           className="
-            px-5
-            rounded-xl
-            bg-blue-600
+            h-12
+            px-6
+            rounded-2xl
+            bg-pink-600
+            hover:bg-pink-500
             text-white
+            font-medium
           "
         >
-          Send
+          →
         </button>
       </div>
     </div>

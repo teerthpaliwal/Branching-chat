@@ -1,6 +1,5 @@
-// MessageBubble.tsx
-
 import BranchIndicator from "./BranchIndicator";
+import ReactMarkdown from "react-markdown";
 
 interface Props {
   message: any;
@@ -9,11 +8,13 @@ interface Props {
 export default function MessageBubble({
   message,
 }: Props) {
-  const isUser = message.role === "user";
+
+  const isUser =
+    message.role === "user";
 
   return (
     <div
-      className={`mb-6 flex ${
+      className={`flex mb-6 ${
         isUser
           ? "justify-end"
           : "justify-start"
@@ -21,12 +22,11 @@ export default function MessageBubble({
     >
       <div
         className={`
-          max-w-[75%]
+          max-w-fit
+          px-5
+          py-4
           rounded-3xl
-          px-4
-          py-3
-          whitespace-pre-wrap
-          shadow-sm
+          shadow
 
           ${
             isUser
@@ -35,7 +35,9 @@ export default function MessageBubble({
           }
         `}
       >
-        {message.content}
+        <ReactMarkdown>
+          {message.content}
+        </ReactMarkdown>
 
         {message.children_count > 1 && (
           <BranchIndicator />
