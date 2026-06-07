@@ -15,6 +15,18 @@ export default function WorkspacePage() {
   const [branchParent, setBranchParent] =
     useState<number | null>(null);
 
+  const [isLoading, setIsLoading] =
+  useState(false);
+
+
+{isLoading && (
+  <div className="text-zinc-500">
+
+    GPT is thinking...
+
+  </div>
+)}
+
   useEffect(() => {
     loadConversation();
   }, []);
@@ -29,10 +41,10 @@ export default function WorkspacePage() {
     };
 
   const handleCreateBranch =
-    (messageId: number) => {
+  (messageId: number) => {
 
-      setBranchParent(messageId);
-    };
+    setBranchParent(messageId);
+  };
 
   const handleSend =
     async (text: string) => {
@@ -49,6 +61,8 @@ export default function WorkspacePage() {
           path[path.length - 1].id;
       }
 
+      setIsLoading(true);
+
       await sendMessage(
         parentId,
         text
@@ -59,6 +73,8 @@ export default function WorkspacePage() {
 
       setPath(updated);
 
+      setIsLoading(false);
+
       setBranchParent(null);
     };
 
@@ -68,6 +84,7 @@ export default function WorkspacePage() {
       onSend={handleSend}
       onCreateBranch={handleCreateBranch}
       branchParent={branchParent}
+      isLoading={isLoading}
     />
   );
 }

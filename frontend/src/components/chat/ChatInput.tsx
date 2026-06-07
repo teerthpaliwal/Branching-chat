@@ -51,20 +51,34 @@ export default function ChatInput({
           border
           border-zinc-700
           "
+
+          onKeyDown={(e) => {
+
+        if (
+          e.key === "Enter" &&
+          !e.shiftKey
+        ) {
+
+          e.preventDefault();
+
+          handleSubmit();
+        }
+      }}
+
           />
 
           {branchParent !== null && (
-        <div
-        className="
-        mb-3
-        text-sm
-        text-pink-400
-        "
-        >
-        🌿 Creating branch from
-        message #{branchParent}
-        </div>
-        )}
+  <div
+    className="
+      mb-3
+      text-sm
+      text-pink-400
+    "
+  >
+    🌿 Creating branch from
+    message #{branchParent}
+  </div>
+)}
 
         <button
           onClick={handleSubmit}

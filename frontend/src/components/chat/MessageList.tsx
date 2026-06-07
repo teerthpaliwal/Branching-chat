@@ -1,17 +1,33 @@
 import MessageBubble from "./MessageBubble.tsx";
+import { useEffect, useRef } from "react";
 
 interface Props {
   messages: any[];
   onCreateBranch: (id: number) => void;
+  isLoading: boolean;
 }
 
 export default function MessageList({
   messages,
   onCreateBranch,
+  isLoading,
 }: Props) {
+
+  const bottomRef =
+    useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+
+  }, [messages]);
+
   return (
     <div className="flex-1 overflow-y-auto">
       <div className="max-w-6xl mx-auto px-4 py-6">
+
         {messages.map((message) => (
           <MessageBubble
             key={message.id}
@@ -19,6 +35,21 @@ export default function MessageList({
             onCreateBranch={onCreateBranch}
           />
         ))}
+
+        <div ref={bottomRef} />
+
+        {isLoading && (
+  <div
+    className="
+      text-zinc-500
+      italic
+      py-4
+    "
+  >
+    GPT is thinking...
+  </div>
+)}
+
       </div>
     </div>
   );

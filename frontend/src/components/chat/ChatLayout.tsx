@@ -6,6 +6,7 @@ interface Props {
   onSend: (text: string) => void;
   onCreateBranch: (id: number) => void;
   branchParent: number | null;
+  isLoading: boolean;
 }
 
 export default function ChatLayout({
@@ -13,13 +14,14 @@ export default function ChatLayout({
   onSend,
   onCreateBranch,
   branchParent,
-  
+  isLoading,
 }: Props) {
   return (
     <div className="flex flex-col h-screen bg-zinc-950">
       <MessageList
         messages={messages}
         onCreateBranch={onCreateBranch}
+        isLoading={isLoading}
       />
 <ChatInput
   onSend={onSend}
