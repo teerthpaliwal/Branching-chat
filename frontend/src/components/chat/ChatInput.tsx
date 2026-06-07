@@ -2,10 +2,12 @@ import { useState } from "react";
 
 interface Props {
   onSend: (text: string) => void;
+  branchParent: number | null;
 }
 
 export default function ChatInput({
   onSend,
+  branchParent,
 }: Props) {
 
   const [text, setText] =
@@ -22,22 +24,14 @@ export default function ChatInput({
 
   return (
     <div
-      className="
-        border-t
-        border-zinc-800
+    className="
+    border-t
+    border-zinc-800
         p-4
         bg-zinc-950
-      "
-    >
-      <div
-        className="
-          max-w-4xl
-          mx-auto
-          flex
-          items-end
-          gap-3
         "
-      >
+        >
+      <div className="max-w-4xl mx-auto">
         <textarea
           value={text}
           onChange={(e) =>
@@ -46,18 +40,31 @@ export default function ChatInput({
           rows={1}
           placeholder="Message..."
           className="
-            flex-1
-            rounded-3xl
-            bg-zinc-900
-            text-white
-            px-5
-            py-4
-            resize-none
-            outline-none
-            border
-            border-zinc-700
+          flex-1
+          rounded-3xl
+          bg-zinc-900
+          text-white
+          px-5
+          py-4
+          resize-none
+          outline-none
+          border
+          border-zinc-700
           "
-        />
+          />
+
+          {branchParent !== null && (
+        <div
+        className="
+        mb-3
+        text-sm
+        text-pink-400
+        "
+        >
+        🌿 Creating branch from
+        message #{branchParent}
+        </div>
+        )}
 
         <button
           onClick={handleSubmit}
@@ -71,7 +78,7 @@ export default function ChatInput({
             font-medium
           "
         >
-          →
+          send
         </button>
       </div>
     </div>

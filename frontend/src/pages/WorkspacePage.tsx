@@ -67,6 +67,7 @@ export default function WorkspacePage() {
       messages={path}
       onSend={handleSend}
       onCreateBranch={handleCreateBranch}
+      branchParent={branchParent}
     />
   );
 }

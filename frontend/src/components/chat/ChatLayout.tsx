@@ -5,12 +5,15 @@ interface Props {
   messages: any[];
   onSend: (text: string) => void;
   onCreateBranch: (id: number) => void;
+  branchParent: number | null;
 }
 
 export default function ChatLayout({
   messages,
   onSend,
   onCreateBranch,
+  branchParent,
+  
 }: Props) {
   return (
     <div className="flex flex-col h-screen bg-zinc-950">
@@ -18,8 +21,11 @@ export default function ChatLayout({
         messages={messages}
         onCreateBranch={onCreateBranch}
       />
-
-      <ChatInput onSend={onSend} />
+<ChatInput
+  onSend={onSend}
+  branchParent={branchParent}
+/>
+       
     </div>
   );
 }
